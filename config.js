@@ -1,3 +1,4 @@
+const MINE_RATE = 1000;
 const INITITAL_DIFFICULTY = 1;
 
 const GENESIS_DATA = {
@@ -9,4 +10,5 @@ const GENESIS_DATA = {
     data: []
 };
 
-export default GENESIS_DATA;
+// Xuất cả hai biến
+export default { GENESIS_DATA, MINE_RATE };
