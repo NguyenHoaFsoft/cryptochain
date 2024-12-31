@@ -1,5 +1,5 @@
-import Block from "./block";
-import cryptoHash from "./crypto-hash";
+import Block from "./block.js";
+import cryptoHash from "./crypto-hash.js";
 
 class Blockchain {
     constructor() {
@@ -37,7 +37,8 @@ class Blockchain {
         for (let i = 1; i < chain.length; i++) {
             const { timestamp, lastHash, hash, nonce, difficulty, data } = chain[i];
             const actualLastHash = chain[i - 1].hash;
-
+            // console.log(lastHash, actualLastHash);
+            // consolele.log(lastHash !== actualLastHash);
             if (lastHash !== actualLastHash) return false;
 
             const validatedHash = cryptoHash(timestamp, lastHash, data, nonce, difficulty);

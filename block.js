@@ -1,5 +1,6 @@
-import GENESIS_DATA from './config.js';
-import cryptoHash from './crypto-hash';
+import { GENESIS_DATA, MINE_RATE } from './config.js';
+import cryptoHash from './crypto-hash.js';
+import hexToBinary from 'hex-to-binary';
 
 class Block {
     constructor({ timestamp, lastHash, hash, data, nonce, difficulty }) {
@@ -16,25 +17,32 @@ class Block {
     }
 
     static mineBlock({ lastBlock, data }) {
-        let hash, timestamp;
-        // const timestamp = Date.now();
         const lastHash = lastBlock.hash;
-        const { difficulty } = lastBlock;
+        let hash, timestamp;
+        let { difficulty } = lastBlock;
         let nonce = 0;
         do {
             nonce++;
             timestamp = Date.now();
+            difficulty = Block.adjustDifficulty({ originalBlock: lastBlock, timestamp });
             hash = cryptoHash(timestamp, lastHash, data, nonce, difficulty);
-        } while (hash.substring(0, difficulty) !== '0'.repeat(difficulty));
+        } while (hexToBinary(hash).substring(0, difficulty) !== '0'.repeat(difficulty));
 
         return new this({
             timestamp,
             data,
-            lastHash, 
+            lastHash,
             hash: cryptoHash(timestamp, lastHash, data, nonce, difficulty),
             difficulty,
             nonce
         });
+    }
+
+    static adjustDifficulty({ originalBlock, timestamp }) {
+        const { difficulty } = originalBlock;
+        if (difficulty < 1) return 1;
+        if ((timestamp - originalBlock.timestamp) > MINE_RATE) return difficulty - 1;
+        return difficulty + 1;
     }
 }
 export default Block;

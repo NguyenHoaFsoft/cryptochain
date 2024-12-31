@@ -19,5 +19,8 @@
     "moduleNameMapper": {
       "^(\\.{1,2}/.*)\\.js$": "$1"
     }
+  },
+  "dependencies": {
+    "hex-to-binary": "^1.0.1"
   }
 }

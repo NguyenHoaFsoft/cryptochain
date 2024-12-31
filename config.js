@@ -1,14 +1,14 @@
+const INITIAL_DIFFICULTY = 3;
 const MINE_RATE = 1000;
-const INITITAL_DIFFICULTY = 1;
 
 const GENESIS_DATA = {
     timestamp: 1,
-    lastHash: '-----',
+    lastHash: 'GENESIS_HASH',
     hash: 'hash-one',
-    difficulty: INITITAL_DIFFICULTY,
+    difficulty: INITIAL_DIFFICULTY,
     nonce: 0,
     data: []
 };
 
-// Xuất cả hai biến
+export { GENESIS_DATA, MINE_RATE };
 export default { GENESIS_DATA, MINE_RATE };

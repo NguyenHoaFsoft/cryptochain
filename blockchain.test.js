@@ -1,6 +1,7 @@
-import { jest } from '@jest/globals';
+import { describe, expect, jest } from '@jest/globals';
 import Block from './block.js';
 import Blockchain from './blockchain.js';
+import cryptoHash from './crypto-hash.js';
 
 describe('Blockchain', () => {
     let blockchain, newChain, originalChain;
@@ -51,6 +52,34 @@ describe('Blockchain', () => {
             describe('and the chain contains a block with an invalid field', () => {
                 it('returns false', () => {
                     blockchain.chain[2].data = 'broken-data';
+                    expect(Blockchain.isValidChain(blockchain.chain)).toBe(false);
+                });
+            });
+
+            describe('and the chain contains a block with a jumped difficulty', () => {
+                it('returns false', () => {
+                    const lastBlock = blockchain.chain[blockchain.chain.length - 1];
+                    const lastHash = lastBlock.lastHash;
+                    const timestamp = Date.now();
+                    const nonce = 0;
+                    const data = [];
+                    const difficulty = lastBlock.difficulty - 3;
+                    const hash = cryptoHash(timestamp, lastHash, nonce, data, difficulty);
+
+                    const badBlock = new Block({
+                        timestamp,
+                        lastHash,
+                        hash,
+                        data,
+                        nonce,
+                        difficulty
+                    });
+
+                    blockchain.chain.push(badBlock);
+                    console.log(Blockchain.isValidChain(blockchain.chain));
+                    console.log(blockchain.chain[blockchain.chain.length - 2].hash);
+                    console.log(blockchain.chain[blockchain.chain.length - 1].lastHash);
+
                     expect(Blockchain.isValidChain(blockchain.chain)).toBe(false);
                 });
             });
