@@ -76,9 +76,6 @@ describe('Blockchain', () => {
                     });
 
                     blockchain.chain.push(badBlock);
-                    console.log(Blockchain.isValidChain(blockchain.chain));
-                    console.log(blockchain.chain[blockchain.chain.length - 2].hash);
-                    console.log(blockchain.chain[blockchain.chain.length - 1].lastHash);
 
                     expect(Blockchain.isValidChain(blockchain.chain)).toBe(false);
                 });
