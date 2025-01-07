@@ -1,35 +1,60 @@
-import { createClient } from 'redis';
+import redis from 'redis';
 
 const CHANNELS = {
     TEST: 'TEST',
+    BLOCKCHAIN: 'BLOCKCHAIN',
 };
 
 class PubSub {
-    constructor() {
-        this.publisher = createClient();
-        this.subscriber = createClient();
+    constructor({ blockchain }) {
+        this.blockchain = blockchain;
 
-        // Connect both publisher and subscriber
-        this.publisher.connect();
-        this.subscriber.connect();
+        this.publisher = redis.createClient();
+        this.subscriber = redis.createClient();
 
-        this.subscriber.subscribe(CHANNELS.TEST, (message) => {
-            this.handleMessage(CHANNELS.TEST, message);
+        // Kết nối Redis clients
+        this.publisher.connect().catch(err => console.error('Publisher error:', err));
+        this.subscriber.connect().catch(err => console.error('Subscriber error:', err));
+
+        // Lắng nghe các kênh
+        this.subscribeToChannels();
+    }
+
+    async handleMessage(channel, message) {
+        console.log(`Message received. Channel: ${channel}. Message: ${message}`);
+        const parsedMessage = JSON.parse(message);
+
+        if (channel === CHANNELS.BLOCKCHAIN) {
+            this.blockchain.replaceChain(parsedMessage);
+        }
+    }
+
+    subscribeToChannels() {
+        Object.values(CHANNELS).forEach(async (channel) => {
+            await this.subscriber.subscribe(channel, (message) => {
+                this.handleMessage(channel, message);
+            });
         });
     }
 
-    handleMessage(channel, message) {
-        console.log(`Message received. Channel: ${channel}. Message: ${message}`);
+    async publish({ channel, message }) {
+        try {
+            if (!this.publisher.isOpen) {
+                await this.publisher.connect();
+            }
+
+            await this.publisher.publish(channel, message);
+        } catch (error) {
+            console.error('Error publishing message:', error);
+        }
     }
 
-    publish(channel, message) {
-        this.publisher.publish(channel, message);
+    broadcastChain() {
+        this.publish({
+            channel: CHANNELS.BLOCKCHAIN,
+            message: JSON.stringify(this.blockchain.chain),
+        });
     }
 }
 
-// Testing PubSub
-const testPubSub = new PubSub();
-
-setTimeout(() => {
-    testPubSub.publish(CHANNELS.TEST, 'Hello world');
-}, 1000); // Publish after 1 second to allow connections to establish
+export default PubSub;
