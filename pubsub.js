@@ -1,4 +1,5 @@
 import redis from 'redis';
+import { v4 as uuidv4 } from 'uuid'; // Thêm thư viện UUID để tạo định danh duy nhất
 
 const CHANNELS = {
     TEST: 'TEST',
@@ -12,6 +13,9 @@ class PubSub {
         this.publisher = redis.createClient();
         this.subscriber = redis.createClient();
 
+        // Tạo UUID cho instance hiện tại
+        this.instanceId = uuidv4();
+
         // Kết nối Redis clients
         this.publisher.connect().catch(err => console.error('Publisher error:', err));
         this.subscriber.connect().catch(err => console.error('Subscriber error:', err));
@@ -21,11 +25,19 @@ class PubSub {
     }
 
     async handleMessage(channel, message) {
-        console.log(`Message received. Channel: ${channel}. Message: ${message}`);
         const parsedMessage = JSON.parse(message);
+        const { instanceId, payload } = parsedMessage;
+
+        // Bỏ qua thông điệp từ chính instance
+        if (instanceId === this.instanceId) {
+            console.log(`Ignored message from self. Channel: ${channel}`);
+            return;
+        }
+
+        console.log(`Message received. Channel: ${channel}. Message: ${JSON.stringify(payload)}`);
 
         if (channel === CHANNELS.BLOCKCHAIN) {
-            this.blockchain.replaceChain(parsedMessage);
+            this.blockchain.replaceChain(payload);
         }
     }
 
@@ -38,21 +50,23 @@ class PubSub {
     }
 
     async publish({ channel, message }) {
-        try {
-            if (!this.publisher.isOpen) {
-                await this.publisher.connect();
-            }
+        const wrappedMessage = JSON.stringify({
+            instanceId: this.instanceId, // Đính kèm UUID của instance phát
+            payload: message, // Nội dung thực tế
+        });
 
-            await this.publisher.publish(channel, message);
+        try {
+            console.log(`Publishing message. Channel: ${channel}, Message: ${wrappedMessage}`);
+            await this.publisher.publish(channel, wrappedMessage);
         } catch (error) {
-            console.error('Error publishing message:', error);
+            console.error(`Failed to publish message: ${error}`);
         }
     }
 
     broadcastChain() {
         this.publish({
             channel: CHANNELS.BLOCKCHAIN,
-            message: JSON.stringify(this.blockchain.chain),
+            message: this.blockchain.chain,
         });
     }
 }
