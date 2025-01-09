@@ -1,5 +1,6 @@
 import redis from 'redis';
-import { v4 as uuidv4 } from 'uuid'; // Thêm thư viện UUID để tạo định danh duy nhất
+import pkg from 'uuid';
+const { v4: uuidv4 } = pkg; // Sử dụng cách import tương thích với CommonJS
 
 const CHANNELS = {
     TEST: 'TEST',
