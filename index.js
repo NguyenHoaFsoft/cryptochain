@@ -1,8 +1,8 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 import request from 'request';
-import Blockchain from './blockchain.js';
-import PubSub from './pubsub.js';
+import Blockchain from './blockchain/index.js';
+import PubSub from './app/pubsub.js';
 
 const app = express();
 const blockchain = new Blockchain();
