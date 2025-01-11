@@ -10,5 +10,8 @@ const GENESIS_DATA = {
     data: []
 };
 
-export { GENESIS_DATA, MINE_RATE };
-export default { GENESIS_DATA, MINE_RATE };
+const STARTING_BALANCE = 1000;
+
+export { GENESIS_DATA, MINE_RATE, STARTING_BALANCE };
+
+export default { GENESIS_DATA, MINE_RATE, STARTING_BALANCE };
