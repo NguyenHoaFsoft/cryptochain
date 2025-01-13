@@ -17,4 +17,4 @@ const verifySignature = ({ publicKey, data, signature }) => {
 
 
 // Export riêng từng thành phần
-export { ec, verifySignature };
+export { ec, verifySignature, cryptoHash };

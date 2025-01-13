@@ -1,6 +1,8 @@
 import Transaction from './transaction';
 import Wallet from './index.js';
 import { verifySignature } from '../util';
+import jest from 'jest-mock';
+
 
 describe('Transaction', () => {
     let transaction, senderWallet, recipient, amount;
@@ -57,4 +59,67 @@ describe('Transaction', () => {
 
     });
 
+    describe('validTransaction()', () => {
+        let errorMock;
+        beforeEach(() => {
+            errorMock = jest.fn();
+            global.console.error = errorMock;
+        });
+
+        describe('when the transaction is valid', () => {
+            it('returns true', () => {
+                expect(Transaction.validTransaction(transaction)).toBe(true);
+            });
+        });
+
+        describe('when the transaction is invalid', () => {
+            describe('and a transaction outputMap value is invalid', () => {
+                it('returns false and logs an error', () => {
+                    transaction.outputMap[senderWallet.publicKey] = 999999;
+                    expect(Transaction.validTransaction(transaction)).toBe(false);
+                    expect(errorMock).toHaveBeenCalled();
+                });
+            });
+
+        });
+
+        describe('and the transaction input signature is invalid', () => {
+            it('returns false', () => {
+                transaction.input.signature = new Wallet().sign('foo');
+                expect(Transaction.validTransaction(transaction)).toBe(false);
+            });
+        });
+
+
+    });
+
+    describe('update()', () => {
+        let originalSignature, originalSenderOutputMap, nextRecipient, nextAmount;
+        beforeEach(() => {
+            originalSignature = transaction.input.signature;
+            originalSenderOutputMap = transaction.outputMap[senderWallet.publicKey];
+            nextRecipient = 'next-recipient';
+            nextAmount = 50;
+            transaction.update({ senderWallet, nextRecipient, nextAmount });
+        });
+
+        it('outputs the amount to the next recipient', () => {
+            expect(transaction.outputMap[nextRecipient]).toEqual(nextAmount);
+        });
+
+        it('subtracts the amount from the original sender output amount', () => {
+            expect(transaction.outputMap[senderWallet.publicKey]).toEqual(originalSenderOutputMap - nextAmount);
+        });
+
+        it('maintains a total output that matches the input amount', () => {
+            expect(Object.values(transaction.outputMap).reduce((total, outputAmount) => total + outputAmount)).toEqual(transaction.input.amount);
+        });
+
+        it('re-signs the transaction', () => {
+            expect(transaction.input.signature).not.toEqual(originalSignature);
+        });
+
+
+
+    });
 });

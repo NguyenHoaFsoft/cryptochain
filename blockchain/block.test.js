@@ -1,5 +1,5 @@
 import Block from '../blockchain/block.js';
-import cryptoHash from '../util/crypto-hash.js';
+import { cryptoHash } from '../util';
 import { GENESIS_DATA, MINE_RATE } from '../config.js';
 import hexToBinary from 'hex-to-binary';
 
@@ -74,7 +74,7 @@ describe('Block', () => {
         it('adjusts the difficulty', () => {
             const possibleResults = [lastBlock.difficulty + 1, lastBlock.difficulty - 1];
             expect(possibleResults.includes(minedBlock.difficulty)).toBe(true);
-            });
+        });
 
     });
 
