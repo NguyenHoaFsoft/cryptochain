@@ -24,18 +24,41 @@ class Transaction {
         };
     }
 
-    update({ senderWallet, recipient, amount }) {
-        if (amount > this.outputMap[senderWallet.publicKey]) {
+    // update({ senderWallet, recipient, amount }) {
+    //     if (amount > this.outputMap[senderWallet.publicKey]) {
+    //         throw new Error('Amount exceeds balance');
+    //     }
+    //     if (!this.outputMap[recipient]) {
+    //         this.outputMap[recipient] = amount;
+    //     } else {
+    //         this.outputMap[recipient] = this.outputMap[recipient] + amount;
+    //     }
+    //     this.outputMap[senderWallet.publicKey] = this.outputMap[senderWallet.publicKey] - amount;
+    //     this.input = this.createInput({ senderWallet, outputMap: this.outputMap });
+    // }
+    update({ senderWallet, nextRecipient, nextAmount }) {
+        if (nextAmount > this.outputMap[senderWallet.publicKey]) {
             throw new Error('Amount exceeds balance');
         }
-        if (!this.outputMap[recipient]) {
-            this.outputMap[recipient] = amount;
+
+        // Deduct amount from sender
+        this.outputMap[senderWallet.publicKey] -= nextAmount;
+
+        // Add the amount to the recipient
+        if (!this.outputMap[nextRecipient]) {
+            this.outputMap[nextRecipient] = nextAmount;
         } else {
-            this.outputMap[recipient] = this.outputMap[recipient] + amount;
+            this.outputMap[nextRecipient] += nextAmount;
         }
-        this.outputMap[senderWallet.publicKey] = this.outputMap[senderWallet.publicKey] - amount;
-        this.input = this.createInput({ senderWallet, outputMap: this.outputMap });
+
+        // Update the input with the new signature
+        this.input = {
+            ...this.input,
+            amount: Object.values(this.outputMap).reduce((total, output) => total + output),
+            signature: senderWallet.sign(this.outputMap),
+        };
     }
+
 
     static validTransaction(transaction) {
         const { input: { address, amount, signature }, outputMap } = transaction;
