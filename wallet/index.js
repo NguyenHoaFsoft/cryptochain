@@ -1,6 +1,6 @@
-import { STARTING_BALANCE } from "../config";
-import { ec, cryptoHash } from "../util"; // Import `ec` từ util
-import Transaction from "./transaction";
+import { STARTING_BALANCE } from "../config.js";
+import { ec, cryptoHash } from "../util/index.js"; // Import `ec` từ util
+import Transaction from "./transaction.js";
 
 class Wallet {
     constructor() {

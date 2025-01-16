@@ -1,6 +1,6 @@
 import Transaction from './transaction';
 import Wallet from './index.js';
-import { verifySignature } from '../util';
+import { verifySignature } from '../util/index.js';
 import jest from 'jest-mock';
 
 

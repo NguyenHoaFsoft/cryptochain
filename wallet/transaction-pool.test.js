@@ -1,0 +1,23 @@
+import TransactionPool from './transaction-pool.js';
+import Transaction from './transaction.js';
+import Wallet from './index.js';
+
+describe('TransactionPool', () => {
+    let transactionPool, transaction;
+
+    beforeEach(() => {
+        transactionPool = new TransactionPool();
+        transaction = new Transaction({
+            senderWallet: new Wallet(),
+            recipient: 'fake-recipient',
+            amount: 50
+        });
+    });
+
+    describe('setTransaction()', () => {
+        it('adds a transaction', () => {
+            transactionPool.setTransaction(transaction);
+            expect(transactionPool.transactionMap[transaction.id]).toBe(transaction);
+        });
+    });
+});
