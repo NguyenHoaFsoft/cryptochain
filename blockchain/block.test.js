@@ -1,5 +1,5 @@
 import Block from '../blockchain/block.js';
-import { cryptoHash } from '../util/crypto-hash.js';
+import cryptoHash from '../util/crypto-hash.js';
 import { GENESIS_DATA, MINE_RATE } from '../config.js';
 import hexToBinary from 'hex-to-binary';
 

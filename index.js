@@ -32,11 +32,26 @@ app.post('/api/mine', (req, res) => {
 });
 
 app.post('/api/transact', (req, res) => {
-    const { amount, recipient } = req.body;
-    const transaction = wallet.createTransaction({ recipient, amount });
+    const { recipient, amount } = req.body;
+    let transaction = transactionPool
+        .existingTransaction({ inputAddress: wallet.publicKey });
+
+    try {
+        if (transaction) {
+            console.log('Updating existing transaction...');
+            transaction.update({ senderWallet: wallet, nextRecipient: recipient, nextAmount: amount });
+        } else {
+            console.log('Creating new transaction...');
+            transaction = wallet.createTransaction({ recipient, amount });
+        }
+    } catch (error) {
+        console.error('Transaction failed:', error.message);
+        return res.status(400).json({ type: 'error', message: error.message });
+    }
+
     transactionPool.setTransaction(transaction);
-    console.log('transactionPool', transactionPool);
-    res.json({ transaction });
+    console.log('Transaction Pool:', JSON.stringify(transactionPool, null, 2));
+    res.json({ type: 'success', transaction });
 });
 
 const syncChains = () => {
