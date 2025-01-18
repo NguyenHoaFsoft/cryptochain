@@ -4,13 +4,6 @@ class TransactionPool {
         this.transactionMap = {};
     }
 
-    // setTransaction(transaction) {
-    //     if (!transaction || !transaction.id) {
-    //         throw new Error('Invalid transaction');
-    //     }
-    //     this.transactionMap[transaction.id] = transaction;
-    // }
-
     setTransaction(transaction) {
         if (!transaction || !transaction.id) {
             throw new Error('Invalid transaction: Missing transaction or transaction ID');
@@ -22,6 +15,10 @@ class TransactionPool {
         }
 
         this.transactionMap[transaction.id] = transaction;
+    }
+
+    setMap(transactionMap) {
+        this.transactionMap = transactionMap;
     }
 
     existingTransaction({ inputAddress }) {

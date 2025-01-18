@@ -28,53 +28,36 @@ class PubSub {
         this.subscribeToChannels();
     }
 
-    // async handleMessage(channel, message) {
-    //     const parsedMessage = JSON.parse(message);
-    //     const { instanceId, payload } = parsedMessage;
-
-    //     switch (channel) {
-    //         case CHANNELS.BLOCKCHAIN:
-    //             this.blockchain.replaceChain(payload);
-    //             break;
-    //         case CHANNELS.TRANSACTION:
-    //             this.transactionPool.setTransaction(payload);
-    //             break;
-    //         default:
-    //             return;
-    //     }
-
-    //     // Bỏ qua thông điệp từ chính instance
-    //     if (instanceId === this.instanceId) {
-    //         console.log(`Ignored message from self. Channel: ${channel}`);
-    //         return;
-    //     }
-
-    //     console.log(`Message received. Channel: ${channel}. Message: ${JSON.stringify(payload)}`);
-
-    // }
     async handleMessage(channel, message) {
         const parsedMessage = JSON.parse(message);
         const { instanceId, payload } = parsedMessage;
-    
+
         if (instanceId === this.instanceId) {
             console.log(`Ignored message from self. Channel: ${channel}`);
             return;
         }
-    
+
         console.log(`Message received. Channel: ${channel}. Message: ${JSON.stringify(payload)}`);
-    
+        // Parse thêm payload nếu cần
+        let parsedPayload;
+        try {
+            parsedPayload = JSON.parse(payload);
+        } catch (error) {
+            console.error('Failed to parse payload:', payload);
+            return;
+        }
         switch (channel) {
             case CHANNELS.BLOCKCHAIN:
-                this.blockchain.replaceChain(payload);
+                this.blockchain.replaceChain(parsedPayload);
                 break;
             case CHANNELS.TRANSACTION:
-                // Kiểm tra xem payload có hợp lệ không
-                if (!payload || !payload.id) {
-                    console.error('Invalid transaction payload received:', payload);
+                // Kiểm tra xem parsedPayload có hợp lệ không
+                if (!parsedPayload || !parsedPayload.id) {
+                    console.error('Invalid transaction parsedPayload received:', parsedPayload);
                     return;
                 }
                 try {
-                    this.transactionPool.setTransaction(payload);
+                    this.transactionPool.setTransaction(parsedPayload);
                 } catch (error) {
                     console.error('Failed to set transaction:', error.message);
                 }
