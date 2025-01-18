@@ -1,21 +1,24 @@
+import bodyParser from 'body-parser';
+const { json } = bodyParser;
 import redis from 'redis';
-import pkg from 'uuid';
-const { v4: uuidv4 } = pkg; // Sử dụng cách import tương thích với CommonJS
+import { v1 as uuidv1 } from 'uuid';
 
 const CHANNELS = {
     TEST: 'TEST',
     BLOCKCHAIN: 'BLOCKCHAIN',
+    TRANSACTION: 'TRANSACTION'
 };
 
 class PubSub {
-    constructor({ blockchain }) {
+    constructor({ blockchain, transactionPool }) {
         this.blockchain = blockchain;
+        this.transactionPool = transactionPool;
 
         this.publisher = redis.createClient();
         this.subscriber = redis.createClient();
 
         // Tạo UUID cho instance hiện tại
-        this.instanceId = uuidv4();
+        this.instanceId = uuidv1();
 
         // Kết nối Redis clients
         this.publisher.connect().catch(err => console.error('Publisher error:', err));
@@ -25,20 +28,59 @@ class PubSub {
         this.subscribeToChannels();
     }
 
+    // async handleMessage(channel, message) {
+    //     const parsedMessage = JSON.parse(message);
+    //     const { instanceId, payload } = parsedMessage;
+
+    //     switch (channel) {
+    //         case CHANNELS.BLOCKCHAIN:
+    //             this.blockchain.replaceChain(payload);
+    //             break;
+    //         case CHANNELS.TRANSACTION:
+    //             this.transactionPool.setTransaction(payload);
+    //             break;
+    //         default:
+    //             return;
+    //     }
+
+    //     // Bỏ qua thông điệp từ chính instance
+    //     if (instanceId === this.instanceId) {
+    //         console.log(`Ignored message from self. Channel: ${channel}`);
+    //         return;
+    //     }
+
+    //     console.log(`Message received. Channel: ${channel}. Message: ${JSON.stringify(payload)}`);
+
+    // }
     async handleMessage(channel, message) {
         const parsedMessage = JSON.parse(message);
         const { instanceId, payload } = parsedMessage;
-
-        // Bỏ qua thông điệp từ chính instance
+    
         if (instanceId === this.instanceId) {
             console.log(`Ignored message from self. Channel: ${channel}`);
             return;
         }
-
+    
         console.log(`Message received. Channel: ${channel}. Message: ${JSON.stringify(payload)}`);
-
-        if (channel === CHANNELS.BLOCKCHAIN) {
-            this.blockchain.replaceChain(payload);
+    
+        switch (channel) {
+            case CHANNELS.BLOCKCHAIN:
+                this.blockchain.replaceChain(payload);
+                break;
+            case CHANNELS.TRANSACTION:
+                // Kiểm tra xem payload có hợp lệ không
+                if (!payload || !payload.id) {
+                    console.error('Invalid transaction payload received:', payload);
+                    return;
+                }
+                try {
+                    this.transactionPool.setTransaction(payload);
+                } catch (error) {
+                    console.error('Failed to set transaction:', error.message);
+                }
+                break;
+            default:
+                console.error(`Unknown channel: ${channel}`);
         }
     }
 
@@ -68,6 +110,13 @@ class PubSub {
         this.publish({
             channel: CHANNELS.BLOCKCHAIN,
             message: this.blockchain.chain,
+        });
+    }
+
+    broadcastTransaction(transaction) {
+        this.publish({
+            channel: CHANNELS.TRANSACTION,
+            message: JSON.stringify(transaction)
         });
     }
 }

@@ -1,5 +1,4 @@
-import pkg from 'uuid';
-const { v1: uuidv1 } = pkg;
+import { v1 as uuidv1 } from 'uuid';
 import { verifySignature } from '../util/index.js';
 
 class Transaction {
