@@ -4,14 +4,13 @@ class TransactionPool {
         this.transactionMap = {};
     }
 
+    clear() {
+        this.transactionMap = {};
+    }
+
     setTransaction(transaction) {
         if (!transaction || !transaction.id) {
             throw new Error('Invalid transaction: Missing transaction or transaction ID');
-        }
-
-        // Sử dụng Transaction.validTransaction để kiểm tra tính hợp lệ
-        if (!Transaction.validTransaction(transaction)) {
-            throw new Error('Invalid transaction: Failed validation');
         }
 
         this.transactionMap[transaction.id] = transaction;
@@ -24,6 +23,27 @@ class TransactionPool {
     existingTransaction({ inputAddress }) {
         const transactions = Object.values(this.transactionMap);
         return transactions.find(transaction => transaction.input.address === inputAddress);
+    }
+
+    validTransactions() {
+        return Object.values(this.transactionMap).filter(
+            transaction => Transaction.validTransaction(transaction)
+        );
+    }
+
+    clearBlockchainTransactions({ chain }) {
+        for (let i = 1; i < chain.length; i++) {
+            const block = chain[i];
+
+            if (Array.isArray(block.data)) {
+                for (let transaction of block.data) {
+                    if (this.transactionMap[transaction.id]) {
+                        delete this.transactionMap[transaction.id];
+                    }
+                }
+            }
+
+        }
     }
 }
 

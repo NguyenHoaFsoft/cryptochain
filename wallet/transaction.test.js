@@ -2,6 +2,7 @@ import Transaction from './transaction';
 import Wallet from './index.js';
 import { verifySignature } from '../util/index.js';
 import jest from 'jest-mock';
+import { REWARD_INPUT, MINING_REWARD } from '../config.js';
 
 
 describe('Transaction', () => {
@@ -147,4 +148,24 @@ describe('Transaction', () => {
             });
         });
     });
+
+    describe('rewardTransaction()', () => {
+        let rewardTransaction, minerWallet;
+
+        beforeEach(() => {
+            minerWallet = new Wallet();
+            rewardTransaction = Transaction.rewardTransaction({ minerWallet });
+        });
+
+        it('create a transaction with the reward input', () => {
+            expect(rewardTransaction.input).toEqual(REWARD_INPUT);
+        });
+
+        it('create one transaction for the miner with the `MINING_REWARD`', () => {
+            expect(rewardTransaction.outputMap[minerWallet.publicKey]).toEqual(MINING_REWARD);
+        });
+
+    });
+
+
 });
