@@ -36,11 +36,6 @@ class TransactionPool {
             const block = chain[i];
             console.log('Current block:', block);
     
-            // if (Array.isArray(block.data)) {
-            //     block.data.forEach(transaction => {
-            //         delete this.transactionMap[transaction.id];
-            //     });
-            // }
             for (let transaction of block.data.data) {
                 if (this.transactionMap[transaction.id]) {
                     delete this.transactionMap[transaction.id];
