@@ -82,16 +82,19 @@ describe('TransactionPool', () => {
             for (let i = 0; i < 6; i++) {
                 const transaction = new Wallet().createTransaction({
                     recipient: 'foo',
-                    amount: 30
+                    amount: 20
                 });
                 transactionPool.setTransaction(transaction);
+
+                // Thêm giao dịch vào block nếu i là số chẵn
                 if (i % 2 === 0) {
                     blockchain.addBlock({ data: [transaction] });
                 } else {
+                    // Giữ giao dịch vào expectedTransactionMap nếu i là số lẻ
                     expectedTransactionMap[transaction.id] = transaction;
                 }
-               
             }
+
             transactionPool.clearBlockchainTransactions({ chain: blockchain.chain });
             expect(transactionPool.transactionMap).toEqual(expectedTransactionMap);
         });

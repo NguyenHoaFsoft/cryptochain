@@ -34,17 +34,21 @@ class TransactionPool {
     clearBlockchainTransactions({ chain }) {
         for (let i = 1; i < chain.length; i++) {
             const block = chain[i];
-
-            if (Array.isArray(block.data)) {
-                for (let transaction of block.data) {
-                    if (this.transactionMap[transaction.id]) {
-                        delete this.transactionMap[transaction.id];
-                    }
+            console.log('Current block:', block);
+    
+            // if (Array.isArray(block.data)) {
+            //     block.data.forEach(transaction => {
+            //         delete this.transactionMap[transaction.id];
+            //     });
+            // }
+            for (let transaction of block.data.data) {
+                if (this.transactionMap[transaction.id]) {
+                    delete this.transactionMap[transaction.id];
                 }
             }
-
         }
     }
+    
 }
 
 export default TransactionPool;
