@@ -37,49 +37,6 @@ class PubSub {
         this.subscribeToChannels();
     }
 
-    // async handleMessage(channel, message) {
-    //     const parsedMessage = JSON.parse(message);
-    //     const { instanceId, payload } = parsedMessage;
-
-    //     if (instanceId === this.instanceId) {
-    //         console.log(`Ignored message from self. Channel: ${channel}`);
-    //         return;
-    //     }
-
-    //     console.log(`Message received. Channel: ${channel}. Message: ${JSON.stringify(payload)}`);
-    //     // Parse thêm payload nếu cần
-    //     let parsedPayload;
-    //     try {
-    //         parsedPayload = JSON.parse(payload);
-    //     } catch (error) {
-    //         console.error('Failed to parse payload:', payload);
-    //         return;
-    //     }
-    //     switch (channel) {
-    //         case CHANNELS.BLOCKCHAIN:
-    //             this.blockchain.replaceChain(parsedPayload, () => {
-    //                 this.transactionPool.clearBlockchainTransactions({ chain: parsedPayload });
-    //             });
-    //             this.broadcastChain();
-    //             break;
-    //         case CHANNELS.TRANSACTION:
-    //             // Kiểm tra xem parsedPayload có hợp lệ không
-    //             if (!parsedPayload || !parsedPayload.id) {
-    //                 console.error('Invalid transaction parsedPayload received:', parsedPayload);
-    //                 return;
-    //             }
-    //             try {
-    //                 this.transactionPool.setTransaction(parsedPayload);
-    //             } catch (error) {
-    //                 console.error('Failed to set transaction:', error.message);
-    //             }
-    //             break;
-    //         default:
-    //             console.error(`Unknown channel: ${channel}`);
-    //     }
-    // }
-
-
     async handleMessage(channel, message) {
         let parsedMessage;
 
@@ -129,27 +86,24 @@ class PubSub {
         }
     }
 
-    subscribeToChannels() {
-        Object.values(CHANNELS).forEach(async (channel) => {
-            await this.subscriber.subscribe(channel, (message) => {
-                this.handleMessage(channel, message);
-            });
-        });
+    async subscribeToChannels() {
+        for (const channel of Object.values(CHANNELS)) {
+            try {
+                await this.subscriber.subscribe(channel, (message) => {
+                    try {
+                        const parsedMessage = JSON.parse(message); // Parse message
+                        this.handleMessage(channel, parsedMessage); // Gọi handleMessage
+                    } catch (error) {
+                        console.error(`Failed to parse message on channel ${channel}:`, error);
+                    }
+                });
+                console.log(`Subscribed to channel: ${channel}`);
+            } catch (error) {
+                console.error(`Failed to subscribe to channel ${channel}:`, error);
+            }
+        }
     }
 
-    // async publish({ channel, message }) {
-    //     const wrappedMessage = JSON.stringify({
-    //         instanceId: this.instanceId, // Đính kèm UUID của instance phát
-    //         payload: message, // Nội dung thực tế
-    //     });
-
-    //     try {
-    //         console.log(`Publishing message. Channel: ${channel}, Message: ${wrappedMessage}`);
-    //         await this.publisher.publish(channel, wrappedMessage);
-    //     } catch (error) {
-    //         console.error(`Failed to publish message: ${error}`);
-    //     }
-    // }
     async publish({ channel, message }) {
         let wrappedMessage;
 
