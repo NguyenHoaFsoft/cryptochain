@@ -49,7 +49,11 @@ app.post('/api/transact', (req, res) => {
             transaction.update({ senderWallet: wallet, nextRecipient: recipient, nextAmount: amount });
         } else {
             console.log('Creating new transaction...');
-            transaction = wallet.createTransaction({ recipient, amount });
+            transaction = wallet.createTransaction({
+                recipient,
+                amount,
+                chain: blockchain.chain
+            });
         }
     } catch (error) {
         console.error('Transaction failed:', error.message);
@@ -65,6 +69,14 @@ app.post('/api/transact', (req, res) => {
 app.get('/api/mine-transactions', (req, res) => {
     transactionMiner.mineTransactions();
     res.redirect('/api/blocks');
+});
+
+app.get('/api/wallet-info', (req, res) => {
+    const address = wallet.publicKey;
+    res.json({
+        address,
+        balance: Wallet.calculateBalance({ chain: blockchain.chain, address })
+    });
 });
 
 app.get('/api/transaction-pool-map', (req, res) => {

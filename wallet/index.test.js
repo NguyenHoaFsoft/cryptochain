@@ -103,7 +103,7 @@ describe('Wallet', () => {
 
             describe('and there are no outputs for the wallet', () => {
                 it('returns the startting balance', () => {
-                    expect(wallet.calculateBalance({
+                    expect(Wallet.calculateBalance({
                         chain: blockchain.chain,
                         address: wallet.publicKey
                     })).toEqual(STARTING_BALANCE);
@@ -127,7 +127,7 @@ describe('Wallet', () => {
 
 
                 it('adds the output values of all unspent transactions to the balance', () => {
-                    expect(wallet.calculateBalance({
+                    expect(Wallet.calculateBalance({
                         chain: blockchain.chain,
                         address: wallet.publicKey
                     })).toEqual(STARTING_BALANCE +

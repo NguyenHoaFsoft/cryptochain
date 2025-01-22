@@ -2,6 +2,8 @@ import { describe, expect, jest } from '@jest/globals';
 import Block from '../blockchain/block.js';
 import Blockchain from '../blockchain/index.js';
 import cryptoHash from '../util/crypto-hash.js';
+import Wallet from '../wallet/index.js';
+import Transaction from '../wallet/transaction.js';
 
 describe('Blockchain', () => {
     let blockchain, newChain, originalChain;
@@ -159,4 +161,51 @@ describe('Blockchain', () => {
 
     });
 
+    describe('validTransactionData()', () => {
+        let transaction, rewardTransaction, wallet;
+
+        beforeEach(() => {
+            wallet = new Wallet();
+            transaction = wallet.createTransaction({ recipient: 'foo-recipient', amount: 65 });
+            rewardTransaction = Transaction.rewardTransaction({ minerWallet: wallet });
+        });
+        describe('and the transaction data is valid', () => {
+            it('returns true', () => {
+                newChain.addBlock({ data: [transaction, rewardTransaction] });
+
+                expect(blockchain.validTransactionData({ chain: newChain.chain })).toBe(true);
+            });
+        });
+
+        describe('and the transaction data has multiple rewards', () => {
+            it('returns false', () => { 
+                newChain.addBlock({ data: [transaction, rewardTransaction, rewardTransaction] });
+                expect(blockchain.validTransactionData({ chain: newChain.chain })).toBe(false);
+            });
+
+        });
+
+        describe('and the transaction data has at least one malformed outputMap', () => {
+            describe('and the transaction is not a reward transaction', () => {
+                it('returns false', () => {
+                    transaction.outputMap[wallet.publicKey] = 999999;
+                    newChain.addBlock({ data: [transaction, rewardTransaction] });
+                    expect(blockchain.validTransactionData({ chain: newChain.chain })).toBe(false);
+                 });
+            });
+
+            describe('and the transaction is a reward transaction', () => {
+                it('returns fasle', () => { });
+            });
+
+        });
+
+        describe('and the transaction data has at least one malformed inputMap', () => {
+            it('returns false', () => { });
+        });
+
+        describe('and a block contains multiple identitical transactions', () => {
+            it('returns false', () => { });
+        });
+    });
 });
