@@ -6,12 +6,14 @@ import Wallet from '../wallet/index.js';
 import Transaction from '../wallet/transaction.js';
 
 describe('Blockchain', () => {
-    let blockchain, newChain, originalChain;
+    let blockchain, newChain, originalChain, errorMock;
 
     beforeEach(() => {
         blockchain = new Blockchain();
         newChain = new Blockchain();
+        errorMock = jest.fn();
         originalChain = blockchain.chain;
+        global.console.error = errorMock;
     });
 
     it('contains a `chain` Array instance', () => {
@@ -97,13 +99,11 @@ describe('Blockchain', () => {
     });
 
     describe('replaceChain()', () => {
-        let errorMock, logMock;
+        let logMock;
 
         beforeEach(() => {
-            errorMock = jest.fn();
             logMock = jest.fn();
-            console.error = errorMock;
-            console.log = logMock;
+            global.console.log = logMock;
         });
 
         describe('when the new chain is not longer', () => {
@@ -174,38 +174,69 @@ describe('Blockchain', () => {
                 newChain.addBlock({ data: [transaction, rewardTransaction] });
 
                 expect(blockchain.validTransactionData({ chain: newChain.chain })).toBe(true);
+                expect(errorMock).not.toHaveBeenCalled();
             });
         });
 
         describe('and the transaction data has multiple rewards', () => {
-            it('returns false', () => { 
+            it('returns false and logs an error', () => {
                 newChain.addBlock({ data: [transaction, rewardTransaction, rewardTransaction] });
                 expect(blockchain.validTransactionData({ chain: newChain.chain })).toBe(false);
+                expect(errorMock).toHaveBeenCalled();
             });
 
         });
 
         describe('and the transaction data has at least one malformed outputMap', () => {
             describe('and the transaction is not a reward transaction', () => {
-                it('returns false', () => {
+                it('returns false and logs an error', () => {
                     transaction.outputMap[wallet.publicKey] = 999999;
                     newChain.addBlock({ data: [transaction, rewardTransaction] });
                     expect(blockchain.validTransactionData({ chain: newChain.chain })).toBe(false);
-                 });
+                    expect(errorMock).toHaveBeenCalled();
+                });
             });
 
             describe('and the transaction is a reward transaction', () => {
-                it('returns fasle', () => { });
+                it('returns fasle and logs an error', () => {
+                    rewardTransaction.outputMap[wallet.publicKey] = 999999;
+                    newChain.addBlock({ data: [transaction, rewardTransaction] });
+                    expect(blockchain.validTransactionData({ chain: newChain.chain })).toBe(false);
+                    expect(errorMock).toHaveBeenCalled();
+                });
             });
 
         });
 
         describe('and the transaction data has at least one malformed inputMap', () => {
-            it('returns false', () => { });
+            it('returns false and logs an error', () => {
+                wallet.balance = 9000;
+
+                const evilOutputMap = {
+                    [wallet.publicKey]: 8900,
+                    fooRecipient: 100
+                }
+
+                const evilTransaction = {
+                    input: {
+                        timestamp: Date.now(),
+                        amount: wallet.balance,
+                        address: wallet.publicKey,
+                        signature: wallet.sign(evilOutputMap)
+                    },
+                    outputMap: evilOutputMap
+                }
+
+                newChain.addBlock({ data: [evilTransaction, rewardTransaction] });
+
+                expect(blockchain.validTransactionData({ chain: newChain.chain })).toBe(false);
+                expect(errorMock).toHaveBeenCalled();
+
+            });
         });
 
         describe('and a block contains multiple identitical transactions', () => {
-            it('returns false', () => { });
+            it('returns false and logs an error', () => { });
         });
     });
 });
