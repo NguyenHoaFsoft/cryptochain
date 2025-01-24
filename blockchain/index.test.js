@@ -1,4 +1,4 @@
-import { describe, expect, jest } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
 import Block from '../blockchain/block.js';
 import Blockchain from '../blockchain/index.js';
 import cryptoHash from '../util/crypto-hash.js';
@@ -159,6 +159,20 @@ describe('Blockchain', () => {
 
         });
 
+
+        describe('and the `validateTransactions` flag is true', () => {
+            it('calls `validateTransactions`', () => {
+                const validateTransactionsMock = jest.fn();
+
+                blockchain.validTransactionData = validateTransactionsMock;
+
+                newChain.addBlock({ data: 'foo' });
+                blockchain.replaceChain(newChain.chain, true);
+
+                expect(validateTransactionsMock).toHaveBeenCalled();
+            });
+        });
+
     });
 
     describe('validTransactionData()', () => {
@@ -236,7 +250,14 @@ describe('Blockchain', () => {
         });
 
         describe('and a block contains multiple identitical transactions', () => {
-            it('returns false and logs an error', () => { });
+            it('returns false and logs an error', () => {
+                newChain.addBlock({
+                    data: [transaction, transaction, rewardTransaction]
+                });
+
+                expect(blockchain.validTransactionData({ chain: newChain.chain })).toBe(false);
+                expect(errorMock).toHaveBeenCalled();
+            });
         });
     });
 });
