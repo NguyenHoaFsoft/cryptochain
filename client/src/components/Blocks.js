@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Block from './Block.js';
 
 class Blocks extends Component {
     state = { blocks: [] };
@@ -16,20 +17,8 @@ class Blocks extends Component {
                 <h3>Blocks</h3>
                 {
                     this.state.blocks.map(block => {
-                        console.log('block', block);
                         return (
-                            <div key={block.hash}>
-                                <div>
-                                    Hash: {block.hash}
-                                </div>
-                                <div>
-                                    Previous Hash: {block.previousHash}
-                                </div>
-                                <div>
-                                    Timestamp: {new Date(block.timestamp).toLocaleString()}
-                                </div>
-                                <hr />
-                            </div>
+                            <Block key={block.hash} block={block} />
                         );
                     })
                 }
