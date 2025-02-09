@@ -1,22 +1,28 @@
 import React from 'react';
-import { render } from 'react-dom';
-import { Router, Switch, Route } from 'react-router-dom';
-import history from './history';
-import App from './components/App.js';
-import Blocks from './components/Blocks.js';
-import ConductTransaction from './components/ConductTransaction.js';
-import TransactionPool from './components/TransactionPool.js';
+import ReactDOM from 'react-dom/client';  
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+import App from './components/App';  // Đảm bảo đường dẫn đúng
+import Blocks from './components/Blocks';
+import ConductTransaction from './components/ConductTransaction';
+import TransactionPool from './components/TransactionPool';
 import './index.css';
 
-render(
-    <Router history={history}>
-        <Switch>
-            <Route exact path="/" component={App} />
-            <Route path='/blocks' component={Blocks} />
-            <Route path='/conduct-transaction' component={ConductTransaction} />
-            <Route path='/transaction-pool' component={TransactionPool} />
-        </Switch>
-    </Router>,
-    document.getElementById('root')
+// Kiểm tra nếu import bị lỗi
+console.log({ App, Blocks, ConductTransaction, TransactionPool });
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+root.render(
+    <Router>
+        <Routes>
+            <Route path="/" element={<App />} />
+            <Route path="/blocks" element={<Blocks />} />
+            <Route path="/conduct-transaction" element={<ConductTransaction />} />
+            <Route path="/transaction-pool" element={<TransactionPool />} />
+        </Routes>
+    </Router>
 );
+
+
 

@@ -42,3 +42,11 @@ a:hover {
     color: #e66;
     text-decoration: underline;
 }
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+

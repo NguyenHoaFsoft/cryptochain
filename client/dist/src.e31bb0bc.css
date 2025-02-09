@@ -43,4 +43,13 @@ a:hover {
     text-decoration: underline;
 }
 
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
+
+
 /*# sourceMappingURL=/src.e31bb0bc.css.map */
