@@ -7,10 +7,19 @@ const POLL_INTERVAL_MS = 10000;
 class TransactionPool extends Component {
     state = { transactionPoolMap: {} };
 
+    // fetchTransactionPoolMap = () => {
+    //     fetch(`${document.location.origin}/api/transaction-pool-map`)
+    //         .then(response => response.json())
+    //         .then(json => this.setState({ transactionPoolMap: json }));
+    // }
     fetchTransactionPoolMap = () => {
+        console.log("Fetching transaction pool from:", document.location.origin);
         fetch(`${document.location.origin}/api/transaction-pool-map`)
             .then(response => response.json())
-            .then(json => this.setState({ transactionPoolMap: json }));
+            .then(json => {
+                console.log("Transaction Pool Data:", json);
+                this.setState({ transactionPoolMap: json });
+            });
     }
 
     componentDidMount() {

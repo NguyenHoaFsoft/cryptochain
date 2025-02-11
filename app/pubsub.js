@@ -15,7 +15,8 @@ function isValidJSON(string) {
 const CHANNELS = {
     TEST: 'TEST',
     BLOCKCHAIN: 'BLOCKCHAIN',
-    TRANSACTION: 'TRANSACTION'
+    TRANSACTION: 'TRANSACTION',
+    TRANSACTION_POOL: 'TRANSACTION_POOL'
 };
 
 class PubSub {
@@ -81,6 +82,38 @@ class PubSub {
                     console.error('Failed to set transaction:', error.message);
                 }
                 break;
+            case CHANNELS.TRANSACTION_POOL:
+                console.log('Received TRANSACTION_POOL message:', parsedPayload);
+
+                if (!parsedPayload || typeof parsedPayload !== 'object') {
+                    console.error('Invalid TRANSACTION_POOL payload received:', parsedPayload);
+                    return;
+                }
+
+                let poolData = parsedPayload.transactionPoolMap;
+
+                // Nếu `transactionPoolMap` là JSON string, parse nó
+                if (typeof poolData === 'string') {
+                    try {
+                        poolData = JSON.parse(poolData);
+                    } catch (error) {
+                        console.error('Failed to parse transactionPoolMap:', error);
+                        return;
+                    }
+                }
+
+                if (typeof poolData !== 'object') {
+                    console.error('Invalid transactionPoolMap structure:', poolData);
+                    return;
+                }
+
+                console.log('Applying transaction pool update:', poolData);
+                this.transactionPool.setMap(poolData);
+                console.log('Updated transaction pool:', JSON.stringify(this.transactionPool.transactionMap, null, 2));
+                break;
+
+
+
             default:
                 console.error(`Unknown channel: ${channel}`);
         }
@@ -90,12 +123,8 @@ class PubSub {
         for (const channel of Object.values(CHANNELS)) {
             try {
                 await this.subscriber.subscribe(channel, (message) => {
-                    try {
-                        const parsedMessage = JSON.parse(message); // Parse message
-                        this.handleMessage(channel, parsedMessage); // Gọi handleMessage
-                    } catch (error) {
-                        console.error(`Failed to parse message on channel ${channel}:`, error);
-                    }
+                    // Không parse message ở đây, để handleMessage tự xử lý
+                    this.handleMessage(channel, message);
                 });
                 console.log(`Subscribed to channel: ${channel}`);
             } catch (error) {
@@ -103,6 +132,7 @@ class PubSub {
             }
         }
     }
+    
 
     async publish({ channel, message }) {
         let wrappedMessage;
@@ -138,6 +168,14 @@ class PubSub {
             message: JSON.stringify(transaction)
         });
     }
+
+    broadcastTransactionPool(transactionPoolMap) {
+        this.publish({
+            channel: CHANNELS.TRANSACTION_POOL,
+            message: JSON.stringify({ transactionPoolMap }) // Gửi object có key transactionPoolMap
+        });
+    }
+
 }
 
 export default PubSub;
