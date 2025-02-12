@@ -40764,70 +40764,7 @@ function _inherits(t, e) { if ("function" != typeof e && null !== e) throw new T
 function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, _setPrototypeOf(t, e); }
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
-function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); } // import React, { Component } from "react";
-// import { FormGroup, FormControl, Button } from "react-bootstrap";
-// import { Link } from "react-router-dom";
-// import history from '../history';
-// class ConductTransaction extends Component {
-//     state = {
-//         recipient: '',
-//         amount: 0
-//     };
-//     updateRecipient = event => {
-//         this.setState({ recipient: event.target.value });
-//     }
-//     updateAmount = event => {
-//         this.setState({ amount: Number(event.target.value) });
-//     }
-//     conductTransaction = () => {
-//         const { recipient, amount } = this.state;
-//         fetch(`${document.location.origin}/api/transact`, {
-//             method: 'POST',
-//             headers: { 'Content-Type': 'application/json' },
-//             body: JSON.stringify({ recipient, amount })
-//         }).then(response => response.json())
-//             .then(json => {
-//                 alert(json.message || json.type);
-//                 history.push('/transaction-pool');
-//             });
-//     }
-//     render() {
-//         console.log(this.state);
-//         return (
-//             <div className="ConductTransaction">
-//                 <Link to="/">Home</Link>
-//                 <h3>Conduct a Transaction</h3>
-//                 <div className="form-container">
-//                     <FormGroup>
-//                         <FormControl
-//                             input="text"
-//                             placeholder="recipient"
-//                             value={this.state.recipient}
-//                             onChange={this.updateRecipient}
-//                         />
-//                     </FormGroup>
-//                     <FormGroup>
-//                         <FormControl
-//                             input="number"
-//                             placeholder="amount"
-//                             value={this.state.amount}
-//                             onChange={this.updateAmount}
-//                         />
-//                     </FormGroup>
-//                     <div>
-//                         <Button
-//                             variant="danger"
-//                             onClick={this.conductTransaction}
-//                         >
-//                             Submit
-//                         </Button>
-//                     </div>
-//                 </div>
-//             </div>
-//         )
-//     }
-// }
-// export default ConductTransaction;
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 // Sử dụng withRouter của bạn
 var ConductTransaction = /*#__PURE__*/function (_Component) {
   function ConductTransaction() {
@@ -40911,8 +40848,10 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 var _react = _interopRequireWildcard(require("react"));
+var _reactBootstrap = require("react-bootstrap");
 var _Transaction = _interopRequireDefault(require("./Transaction"));
 var _reactRouterDom = require("react-router-dom");
+var _withRouter = require("../withRouter");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function (e) { return e ? t : r; })(e); }
 function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != typeof e && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
@@ -40930,6 +40869,8 @@ function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf 
 function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+// Sử dụng withRouter của bạn
+
 var POLL_INTERVAL_MS = 10000;
 var TransactionPool = /*#__PURE__*/function (_Component) {
   function TransactionPool() {
@@ -40942,13 +40883,7 @@ var TransactionPool = /*#__PURE__*/function (_Component) {
     _defineProperty(_this, "state", {
       transactionPoolMap: {}
     });
-    // fetchTransactionPoolMap = () => {
-    //     fetch(`${document.location.origin}/api/transaction-pool-map`)
-    //         .then(response => response.json())
-    //         .then(json => this.setState({ transactionPoolMap: json }));
-    // }
     _defineProperty(_this, "fetchTransactionPoolMap", function () {
-      console.log("Fetching transaction pool from:", document.location.origin);
       fetch("".concat(document.location.origin, "/api/transaction-pool-map")).then(function (response) {
         return response.json();
       }).then(function (json) {
@@ -40956,6 +40891,16 @@ var TransactionPool = /*#__PURE__*/function (_Component) {
         _this.setState({
           transactionPoolMap: json
         });
+      });
+    });
+    _defineProperty(_this, "fetchMineTransactions", function () {
+      fetch("".concat(document.location.origin, "/api/mine-transactions")).then(function (response) {
+        if (response.status === 200) {
+          alert("Sucess");
+          _this.props.navigate('/blocks');
+        } else {
+          alert("The mine-transactions block request dit not complete.");
+        }
       });
     });
     return _this;
@@ -40966,9 +40911,14 @@ var TransactionPool = /*#__PURE__*/function (_Component) {
     value: function componentDidMount() {
       var _this2 = this;
       this.fetchTransactionPoolMap();
-      setInterval(function () {
+      this.fetchPoolMapInterval = setInterval(function () {
         return _this2.fetchTransactionPoolMap();
       }, POLL_INTERVAL_MS);
+    }
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      clearInterval(this.fetchPoolMapInterval);
     }
   }, {
     key: "render",
@@ -40984,12 +40934,15 @@ var TransactionPool = /*#__PURE__*/function (_Component) {
         }, /*#__PURE__*/_react.default.createElement("hr", null), /*#__PURE__*/_react.default.createElement(_Transaction.default, {
           transaction: transaction
         }));
-      }));
+      }), /*#__PURE__*/_react.default.createElement("hr", null), /*#__PURE__*/_react.default.createElement(_reactBootstrap.Button, {
+        variant: "danger",
+        onClick: this.fetchMineTransactions
+      }, "Mine the Transactions"));
     }
   }]);
 }(_react.Component);
-var _default = exports.default = TransactionPool;
-},{"react":"../../node_modules/react/index.js","./Transaction":"components/Transaction.js","react-router-dom":"../../node_modules/react-router-dom/dist/index.js"}],"../../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+var _default = exports.default = (0, _withRouter.withRouter)(TransactionPool);
+},{"react":"../../node_modules/react/index.js","react-bootstrap":"../../node_modules/react-bootstrap/esm/index.js","./Transaction":"components/Transaction.js","react-router-dom":"../../node_modules/react-router-dom/dist/index.js","../withRouter":"withRouter.js"}],"../../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 function getBundleURLCached() {
   if (!bundleURL) {
@@ -41104,7 +41057,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49493" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55081" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
